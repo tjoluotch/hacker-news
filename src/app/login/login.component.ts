@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {GC_AUTH_TOKEN, GC_USER_ID} from '../constants';
 import {AuthService} from '../auth.service';
-import {CreateUserMutationResponse, SIGNIN_USER_MUTATION} from '../graphql';
+import {CREATE_USER_MUTATION, CreateUserMutationResponse, SIGNIN_USER_MUTATION, SigninUserMutationResponse} from '../graphql';
+import {Router} from '@angular/router';
+import {Apollo} from 'apollo-angular';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +17,9 @@ export class LoginComponent implements OnInit {
   password = '';
   name = '';
 
-  constructor(private authService: AuthService) { }
+  constructor(private router: Router,
+                private authService: AuthService,
+                private apollo: Apollo) { }
 
   ngOnInit() {
   }
@@ -37,6 +41,22 @@ export class LoginComponent implements OnInit {
       }, (error) => {
         alert(error)
       });
+    } else {
+      this.apollo.mutate<SigninUserMutationResponse>({
+        mutation: CREATE_USER_MUTATION,
+        variables: {
+          name: this.name,
+          email: this.email,
+          password: this.password
+        }
+      }).subscribe((result) => {
+        const id = result.data.signinUser.user.id;
+        const token = result.data.signinUser.token;
+        this.saveUserData(id, token);
+        this.router.navigate(['/']);
+      }, (error) => {
+        alert(error)
+      })
     }
   }
 

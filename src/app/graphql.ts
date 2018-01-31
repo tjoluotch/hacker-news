@@ -89,7 +89,7 @@ export const SIGNIN_USER_MUTATION = gql`
   }
 `;
 
-export interface CreateUserMutationResponse {
+export interface SigninUserMutationResponse {
   loading: boolean;
   signinUser: {
     token: string,
